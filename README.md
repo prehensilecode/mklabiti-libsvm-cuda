@@ -6,7 +6,7 @@ GPU-accelerated LIBSVM is a modification of the [original LIBSVM](http://www.csi
 
 Watch a [short video](http://www.youtube.com/watch?v=Fl99tQQd55U) on the capabilities of the GPU-accelerated LIBSVM package
 
-###CHANGELOG
+### CHANGELOG
 V1.2.3.1
     Removed specific CUDA version (compiles and links with CUDA 9.0)
     Use CUBLAS that is distributed with CUDA 9.0
