@@ -35,11 +35,14 @@
 
 include ./findcudalib.mk
 
+CC = gcc
+CXX = g++
+
 # Location of the CUDA Toolkit
-CUDA_PATH ?= "/usr/local/cuda-5.5"
+CUDA_PATH ?= /usr/local/cuda
 
 # internal flags
-NVCCFLAGS   := -m${OS_SIZE} -maxrregcount=16
+NVCCFLAGS   := -m$(OS_SIZE) -maxrregcount=16
 CCFLAGS     :=
 NVCCLDFLAGS :=
 LDFLAGS     :=
@@ -100,9 +103,10 @@ ALL_LDFLAGS += $(EXTRA_NVCCLDFLAGS)
 ALL_LDFLAGS += $(addprefix -Xlinker ,$(EXTRA_LDFLAGS))
 
 # Common includes and paths for CUDA
-INCLUDES  := -I/usr/local/cuda-5.5/include
-INCLUDES  := -I/usr/local/cuda-5.5/samples/common/inc
-LIBRARIES := -L/usr/local/cuda-5.5/lib64
+INCLUDES  := -I$(CUDA_PATH)/include 
+INCLUDES  += -I$(CUDA_PATH)/targets/x86_64-linux/include
+INCLUDES  += -I$(CUDA_PATH)/samples/common/inc
+LIBRARIES := -L$(CUDA_PATH)/lib64
 
 ################################################################################
 
@@ -126,13 +130,16 @@ all: build
 
 build: svm-train-gpu
 
+svm-train.o: svm-train.c
+	$(CC) $(INCLUDES) -o $@ -c $<
+
 svm-train-gpu.o: svm.cpp svm-train.o
 	$(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
 svm-train-gpu: svm.o svm-train.o
 	$(NVCC) $(ALL_LDFLAGS) -o $@ $+ $(LIBRARIES)
-	mkdir -p /bin/$(OS_ARCH)/$(OSLOWER)/$(TARGET)$(if $(abi),/$(abi))
-	cp $@ /bin/$(OS_ARCH)/$(OSLOWER)/$(TARGET)$(if $(abi),/$(abi))
+	mkdir -p bin/$(OS_ARCH)/$(OSLOWER)/$(TARGET)$(if $(abi),/$(abi))
+	cp $@ bin/$(OS_ARCH)/$(OSLOWER)/$(TARGET)$(if $(abi),/$(abi))
 
 run: build
 	./svm-train-gpu
